@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Usuario {
+  id        String   @id @default(cuid())
+  nombre    String
+  apellidos String
+  email     String   @unique
+  password  String
+  rol       String   // ADMINISTRADOR | ADMINISTRATIVO | DOCENTE | APODERADO_ESTUDIANTE
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  docente       Docente?
+  estudiantes   Estudiante[]
+  notificaciones Notificacion[]
+}
+
+model Docente {
+  id           String  @id @default(cuid())
+  usuarioId    String? @unique
+  dni          String  @unique
+  nombres      String
+  apellidos    String
+  especialidad String
+  telefono     String
+  email        String
+  estado       String  @default("ACTIVO") // ACTIVO | INACTIVO
+
+  usuario  Usuario?  @relation(fields: [usuarioId], references: [id])
+  horarios Horario[]
+}
+
+model Estudiante {
+  id                 String   @id @default(cuid())
+  usuarioApoderadoId String?
+  dni                String   @unique
+  codigoEstudiante   String   @unique
+  nombres            String
+  apellidos          String
+  fechaNacimiento    String
+  nombreApoderado    String
+  telefonoApoderado  String
+  estado             String   @default("POSTULANTE") // POSTULANTE | MATRICULADO | RETIRADO
+
+  apoderado   Usuario?     @relation(fields: [usuarioApoderadoId], references: [id])
+  matriculas  Matricula[]
+  asistencias Asistencia[]
+  pagos       Pago[]
+  documentos  Documento[]
+}
+
+model Curso {
+  id             String @id @default(cuid())
+  codigo         String @unique
+  nombre         String
+  area           String
+  horasSemanales Int
+
+  horarios Horario[]
+}
+
+model Seccion {
+  id              String @id @default(cuid())
+  nivel           String // PRIMARIA | SECUNDARIA
+  grado           String
+  nombre          String
+  turno           String @default("MAÑANA")
+  capacidadMaxima Int
+  anioAcademico   Int    @default(2026)
+
+  matriculas  Matricula[]
+  horarios    Horario[]
+  asistencias Asistencia[]
+  documentos  Documento[]
+}
+
+model Matricula {
+  id              String   @id @default(cuid())
+  codigoMatricula String   @unique
+  estudianteId    String
+  seccionId       String
+  fechaMatricula  DateTime @default(now())
+  estado          String   @default("ACTIVA") // ACTIVA | ANULADA
+  observaciones   String?
+
+  estudiante Estudiante @relation(fields: [estudianteId], references: [id])
+  seccion    Seccion    @relation(fields: [seccionId], references: [id])
+}
+
+model Horario {
+  id         String @id @default(cuid())
+  seccionId  String
+  cursoId    String
+  docenteId  String
+  diaSemana  String // LUNES | MARTES | MIERCOLES | JUEVES | VIERNES
+  horaInicio String
+  horaFin    String
+  aula       String
+
+  seccion Seccion @relation(fields: [seccionId], references: [id])
+  curso   Curso   @relation(fields: [cursoId], references: [id])
+  docente Docente @relation(fields: [docenteId], references: [id])
+}
+
+model Asistencia {
+  id              String  @id @default(cuid())
+  estudianteId    String
+  seccionId       String
+  fecha           String
+  estado          String  // PRESENTE | TARDANZA | FALTA_INJUSTIFICADA | FALTA_JUSTIFICADA
+  observacion     String?
+  registradoPorId String
+
+  estudiante Estudiante @relation(fields: [estudianteId], references: [id])
+  seccion    Seccion    @relation(fields: [seccionId], references: [id])
+
+  @@unique([estudianteId, seccionId, fecha])
+}
+
+model Pago {
+  id               String    @id @default(cuid())
+  codigoRecibo     String    @unique
+  codigoOperacion  String?
+  estudianteId     String
+  concepto         String
+  monto            Float
+  fechaVencimiento String
+  fechaPago        DateTime?
+  metodoPago       String?
+  estado           String    @default("PENDIENTE") // PENDIENTE | PAGADO | VENCIDO
+
+  estudiante Estudiante @relation(fields: [estudianteId], references: [id])
+}
+
+model Documento {
+  id           String   @id @default(cuid())
+  titulo       String
+  tipo         String // CONSTANCIA_MATRICULA | BOLETA_PAGO | SILABO | CERTIFICADO | COMUNICADO
+  descripcion  String
+  rutaArchivo  String?
+  estudianteId String?
+  seccionId    String?
+  subidoPorId  String
+  createdAt    DateTime @default(now())
+
+  estudiante Estudiante? @relation(fields: [estudianteId], references: [id])
+  seccion    Seccion?    @relation(fields: [seccionId], references: [id])
+}
+
+model Notificacion {
+  id        String   @id @default(cuid())
+  usuarioId String
+  titulo    String
+  mensaje   String
+  tipo      String   @default("INFO") // INFO | ALERTA | EXITO
+  leida     Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+}

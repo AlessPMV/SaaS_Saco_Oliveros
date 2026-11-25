@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body { @apply bg-slate-50 text-slate-800 antialiased; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+}
+
+@layer components {
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-blue-950/30 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-sm { @apply px-2.5 py-1.5 text-xs; }
+  .btn-primary { @apply bg-blue-950 text-white hover:bg-blue-900; }
+  .btn-accent { @apply bg-red-700 text-white hover:bg-red-800; }
+  .btn-outline { @apply border border-slate-300 bg-white text-slate-700 hover:bg-slate-50; }
+  .btn-ghost { @apply text-slate-600 hover:bg-slate-100; }
+  .btn-danger { @apply border border-red-200 bg-white text-red-700 hover:bg-red-50; }
+
+  .input { @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-950/20 disabled:bg-slate-100 disabled:text-slate-500; }
+  .label { @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500; }
+  .card { @apply rounded-xl border border-slate-200 bg-white shadow-sm; }
+
+  .tabla { @apply w-full text-left text-sm; }
+  .tabla thead th { @apply whitespace-nowrap border-b border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500; }
+  .tabla tbody td { @apply border-b border-slate-100 px-3 py-2.5 align-middle text-slate-700; }
+  .tabla tbody tr:hover { @apply bg-slate-50/70; }
+}
+
+/* ───────── Impresión: solo se imprime el contenido del modal activo ───────── */
+@media print {
+  @page { margin: 14mm; }
+  html, body { background: #fff !important; height: auto !important; overflow: visible !important; }
+  body > *:not(.modal-root) { display: none !important; }
+  .modal-root { position: static !important; background: transparent !important; padding: 0 !important; display: block !important; overflow: visible !important; }
+  .modal-panel { position: static !important; max-height: none !important; box-shadow: none !important; border: none !important; width: 100% !important; max-width: none !important; overflow: visible !important; }
+  .no-print { display: none !important; }
+}
